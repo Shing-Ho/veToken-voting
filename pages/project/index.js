@@ -4,24 +4,26 @@ import { useRouter } from 'next/router';
 import { Typography, Paper } from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
 
-import Layout from '../../../components/layout/layout.js';
-import Balances from '../../../components/balances';
-import GaugeCalculator from '../../../components/gaugeCalculator';
-import VeAssetGeneration from '../../../components/veAssetGeneration';
-import GaugeVoting from '../../../components/gaugeVoting';
+import Layout from '../../components/layout/layout.js';
+import Balances from '../../components/balances';
+import GaugeCalculator from '../../components/gaugeCalculator';
+import VeAssetGeneration from '../../components/veAssetGeneration';
+import GaugeVoting from '../../components/gaugeVoting';
 
 import classes from './project.module.css';
 
-import stores from '../../../stores/index.js';
-import { ERROR, GET_PROJECT, PROJECT_RETURNED } from '../../../stores/constants';
+import stores from '../../stores/index.js';
+import { ERROR, GET_PROJECT, PROJECT_RETURNED } from '../../stores/constants';
 
-import { formatCurrency, formatAddress } from '../../../utils';
+import { injected } from '../../stores/connectors/connectors';
+
+import { formatCurrency, formatAddress } from '../../utils';
 
 function Projects({ changeTheme }) {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [project, setProject] = useState(null);
+  const [project, setProject] = useState('spirit');
 
   useEffect(function () {
     const projectReturned = (proj) => {
@@ -37,17 +39,13 @@ function Projects({ changeTheme }) {
 
   useEffect(
     function () {
-      stores.dispatcher.dispatch({ type: GET_PROJECT, content: { id: router.query.project } });
+      stores.dispatcher.dispatch({ type: GET_PROJECT, content: { id: 'spirit' } });
     },
     [router],
   );
 
-  const backClicked = () => {
-    router.push('/');
-  }
-
   return (
-    <Layout changeTheme={changeTheme} backClicked={ backClicked }>
+    <Layout changeTheme={changeTheme}>
       <div className={classes.projectContainer}>
         <Balances project={project} />
         <div className={classes.projectCardContainer}>

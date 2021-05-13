@@ -7,7 +7,8 @@ import {
   CONFIGURE_RETURNED,
   ACCOUNT_CHANGED,
   GET_GAS_PRICES,
-  GAS_PRICES_RETURNED
+  GAS_PRICES_RETURNED,
+  GET_PROJECT
 } from "./constants";
 
 import { ERC20ABI } from "./abis";
@@ -20,8 +21,8 @@ import {
   injected,
   walletconnect,
   walletlink,
-  fortmatic,
-  portis,
+  // fortmatic,
+  // portis,
   network
 } from "./connectors";
 
@@ -41,8 +42,8 @@ class Store {
         TrustWallet: injected,
         WalletConnect: walletconnect,
         WalletLink: walletlink,
-        Fortmatic: fortmatic,
-        Portis: portis
+        // Fortmatic: fortmatic,
+        // Portis: portis
       },
       gasPrices: {
         slow: 90,
@@ -90,6 +91,7 @@ class Store {
               account: { address: a.account },
               web3context: { library: { provider: a.provider } }
             });
+            this.dispatcher.dispatch({ type: GET_PROJECT, content: { id: 'spirit', account: a.account } });
             this.emitter.emit(CONFIGURE_RETURNED);
           })
           .catch(e => {
@@ -185,9 +187,8 @@ class Store {
   getWeb3Provider = async () => {
     let web3context = this.getStore("web3context");
     let provider = null;
-
     if (!web3context) {
-      provider = network.providers["1"];
+      provider = network.providers["4002"]; // need to change to 250
     } else {
       provider = web3context.library.provider;
     }

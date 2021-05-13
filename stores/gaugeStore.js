@@ -1,4 +1,7 @@
 import async from 'async';
+import Web3 from 'web3'
+import BigNumber from "bignumber.js";
+
 import {
   MAX_UINT256,
   ERROR,
@@ -13,12 +16,13 @@ import {
   PROJECT_RETURNED
 } from './constants';
 
+import { getSpiritContract } from '../utils/contractHelper';
+
 import * as moment from 'moment';
 
 import stores from './';
 import { ERC20ABI } from './abis';
 import { bnDec } from '../utils';
-import BigNumber from 'bignumber.js';
 
 const fetch = require('node-fetch');
 
@@ -30,60 +34,19 @@ class Store {
     this.store = {
       projects: [
         {
-          id: 'yearn',
-          name: 'Yearn',
-          logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png',
-          url: 'yearn.finance',
-          gaugeProxyAddress: '',
-          tokenMetadata: {
-            address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
-            symbol: 'YFI',
-            decimals: 18,
-            logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
-          },
-          veTokenMetadata: {
-            address: '0x0bc529c00C6401aEF6D220BE8C6Ea1667F6Ad93e',
-            symbol: 'veYFI',
-            decimals: 18,
-            logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
-          },
-          vaults: [
-            {
-              address: 'addy',
-              name: 'Farm 1',
-              logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
-            },
-            {
-              address: 'addy',
-              name: 'Farm 2',
-              logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
-            },
-            {
-              address: 'addy',
-              name: 'Farm 3',
-              logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
-            },
-            {
-              address: 'addy',
-              name: 'Farm 4',
-              logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
-            }
-          ]
-        },
-        {
           id: 'spirit',
           name: 'Spirit Swap',
           logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png',
           url: 'spiritswap.finance',
           gaugeProxyAddress: '',
           tokenMetadata: {
-            address: '0x5cc61a78f164885776aa610fb0fe1257df78e59b',
+            address: '0x1C9141857103C41D60986f76dfe6C1278E3EDAF0',
             symbol: 'spirit',
             decimals: 18,
             logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
           },
           veTokenMetadata: {
-            address: '0x5cc61a78f164885776aa610fb0fe1257df78e59b',
+            address: '0xBa20Bbc0799B8654b5061668b272037d4881a0a8',
             symbol: 'veSpirit',
             decimals: 18,
             logo: 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/yearn.finance.png'
@@ -177,6 +140,7 @@ class Store {
 
   getProject = async (payload) => {
     const web3 = await stores.accountStore.getWeb3Provider();
+    console.log('web3', web3, payload)
     if (!web3) {
       return null;
     }
@@ -196,6 +160,12 @@ class Store {
       project = project[0]
     }
 
+    const account = payload.content.account;
+    // getSpiritContract(project.tokenMetadata.address, Web3).methods.balanceOf()
+    const balance = await getSpiritContract(project.tokenMetadata.address, Web3).methods.balanceOf(account).call();
+    console.log('blance', balance);
+
+    project.tokenMetadata.balance = new BigNumber(balance).div(bnDec(18));
     this.emitter.emit(PROJECT_RETURNED, project)
   }
 

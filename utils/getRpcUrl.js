@@ -1,0 +1,1 @@
+export default 'https://rpc.testnet.fantom.network/';

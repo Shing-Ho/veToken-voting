@@ -13,34 +13,34 @@ import { NetworkConnector } from "@web3-react/network-connector";
 
 const POLLING_INTERVAL = 12000;
 const RPC_URLS = {
-  1: process.env.NEXT_PUBLIC_PROVIDER,
-  4: "https://rinkeby.infura.io/v3/bd80ce1ca1f94da48e151bb6868bb150"
+  250: "https://rpcapi.fantom.network",
+  4002: "https://rpc.testnet.fantom.network/"
 };
 
-export const network = new NetworkConnector({ urls: { 1: RPC_URLS[1] } });
+export const network = new NetworkConnector({ urls: { 250: RPC_URLS[250] } });
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 3, 4, 5, 42]
+  supportedChainIds: [250, 4002]
 });
 
 export const walletconnect = new WalletConnectConnector({
-  rpc: { 1: RPC_URLS[1] },
+  rpc: { 250: RPC_URLS[250] },
   bridge: "https://bridge.walletconnect.org",
   qrcode: true,
   pollingInterval: POLLING_INTERVAL
 });
 
 export const walletlink = new WalletLinkConnector({
-  url: RPC_URLS[1],
+  url: RPC_URLS[250],
   appName: "yearn.finance"
 });
 
-export const fortmatic = new FortmaticConnector({
-  apiKey: "pk_live_F95FEECB1BE324B5",
-  chainId: 1
-});
+// export const fortmatic = new FortmaticConnector({
+//   apiKey: "pk_live_F95FEECB1BE324B5",
+//   chainId: 250
+// });
 
-export const portis = new PortisConnector({
-  dAppId: "5dea304b-33ed-48bd-8f00-0076a2546b60",
-  networks: [1, 100]
-});
+// export const portis = new PortisConnector({
+//   dAppId: "5dea304b-33ed-48bd-8f00-0076a2546b60",
+//   networks: [250, 4002]
+// });

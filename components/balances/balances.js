@@ -11,7 +11,7 @@ import { VAULTS_UPDATED, ETHERSCAN_URL, LEND_UPDATED } from '../../stores/consta
 import { formatCurrency, formatAddress } from '../../utils';
 
 function Balances({ project }) {
-
+  console.log('project', project)
   return (
     <Paper elevation={1} className={classes.overviewContainer}>
       <div className={classes.overviewCard}>

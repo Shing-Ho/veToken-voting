@@ -9,10 +9,10 @@ const theme = createMuiTheme({
     ...coreTheme.palette,
     background: {
       default: "#fff",
-      paper: "#F8F9FE"
+      paper: "#eaf8ff"
     },
     accountButton: {
-      default: "#EFEFEF"
+      default: "#60d5dc"
     },
     type: "light"
   },

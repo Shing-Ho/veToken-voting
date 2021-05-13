@@ -4,7 +4,7 @@ export const colors = {
   blue: "#2F80ED",
   red: "#ed4337",
   orange: "#ffb347",
-  lightBlack: "rgba(0, 0, 0, 0.87)"
+  lightBlack: "#52d784"
 };
 
 const coreTheme = {
@@ -118,7 +118,7 @@ const coreTheme = {
   },
   palette: {
     primary: {
-      main: "rgba(0, 0, 0, 0.87)"
+      main: "#52d784"
     },
     secondary: {
       main: "#EFEFEF"

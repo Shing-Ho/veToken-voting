@@ -1,13 +1,13 @@
-import Projects from "./projects";
+import Project from "./project";
 import { useRouter } from "next/router";
 
 function Home({ changeTheme, ...props }) {
   const router = useRouter();
   const activePath = router.asPath;
-  if (activePath.includes("/projects")) {
-    return <Projects props={props} changeTheme={changeTheme} />;
+  if (activePath.includes("/project")) {
+    return <Project props={props} changeTheme={changeTheme} />;
   } else {
-    return <Projects props={props} changeTheme={changeTheme} />;
+    return <Project props={props} changeTheme={changeTheme} />;
   }
 }
 
