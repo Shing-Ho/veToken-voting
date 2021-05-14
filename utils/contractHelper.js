@@ -1,12 +1,17 @@
+import { ethers } from "ethers";
 import spiritAbi from '../stores/abis/Spirit.sol/Spirit.json';
-import web3NoAccount from './web3';
+import veSpiritAbi from '../stores/abis/dill/dill.vy/dill.json';
+import { SPRIT_ADDR, VESPIRIT_ADDR } from './address';;
 
-const getContract = (abi, address, web3) => {
-    const _web3 = web3 ?? web3NoAccount;
-    console.log('_web3', _web3.eth)
-    return new web3NoAccount.eth.Contract(abi.abi, address)
-  }
+const getContract = (abi, address, provider) => {
+    console.log('getContract---',  provider.getSigner())
+    return new ethers.Contract(address, abi.abi, provider.getSigner())
+}
 
-export const getSpiritContract = (address, web3) => {
-    return getContract(spiritAbi, address, web3)
+export const getSpiritContract = (provider) => {
+    return getContract(spiritAbi, SPRIT_ADDR, provider)
+}
+
+export const getVeSpiritContract = (provider) => {
+    return getContract(veSpiritAbi, VESPIRIT_ADDR, provider)
 }

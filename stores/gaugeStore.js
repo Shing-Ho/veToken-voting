@@ -1,6 +1,7 @@
 import async from 'async';
 import Web3 from 'web3'
 import BigNumber from "bignumber.js";
+import { useWeb3React } from "@web3-react/core"
 
 import {
   MAX_UINT256,
@@ -16,7 +17,7 @@ import {
   PROJECT_RETURNED
 } from './constants';
 
-import { getSpiritContract } from '../utils/contractHelper';
+import { getSpiritContract, getVeSpiritContract } from '../utils/contractHelper';
 
 import * as moment from 'moment';
 
@@ -161,11 +162,14 @@ class Store {
     }
 
     const account = payload.content.account;
-    // getSpiritContract(project.tokenMetadata.address, Web3).methods.balanceOf()
-    const balance = await getSpiritContract(project.tokenMetadata.address, Web3).methods.balanceOf(account).call();
-    console.log('blance', balance);
+    let balance = await getSpiritContract(web3).balanceOf(account);
+    project.tokenMetadata.balance = new BigNumber(balance._hex).div(bnDec(18));
 
-    project.tokenMetadata.balance = new BigNumber(balance).div(bnDec(18));
+    const veSpiritContract = await getVeSpiritContract(web3);
+    console.log('!!!', veSpiritContract)
+    balance = await veSpiritContract.balanceOf(account);
+    console.log('balance', balance)
+    project.veTokenMetadata.balance = new BigNumber(balance._hex).div(bnDec(18));
     this.emitter.emit(PROJECT_RETURNED, project)
   }
 

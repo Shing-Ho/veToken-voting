@@ -2,15 +2,20 @@ import React, { useState } from 'react';
 import { Typography, Paper, TextField, InputAdornment, Button, Tooltip, Radio, RadioGroup, FormControlLabel } from '@material-ui/core';
 import Skeleton from '@material-ui/lab/Skeleton';
 import BigNumber from 'bignumber.js';
-import { formatCurrency } from '../../utils';
+import { MaxUint256 } from "@ethersproject/constants";
 
+import { formatCurrency } from '../../utils';
 import classes from './veAssetGeneration.module.css';
+import { getSpiritContract, getVeSpiritContract } from '../../utils/contractHelper';
+import stores from "../../stores/index.js";
+import { ethers } from 'ethers';
 
 export default function VeAssetGeneration({ project }) {
   const [amount, setAmount] = useState(0);
-  const [amountError, setAmountError] = useState(false);
   const [selectedDate, setSelectedDate] = React.useState(new Date('2014-08-18T21:11:54'));
   const [selectedValue, setSelectedValue] = React.useState('week');
+  const [amountError, setAmountError] = useState('');
+  const [dateError, setDateError] = useState('');
 
   const setAmountPercent = (percent) => {
     if (!project || !project.tokenMetadata) {
@@ -20,6 +25,19 @@ export default function VeAssetGeneration({ project }) {
     setAmount(BigNumber(project.tokenMetadata.balance).times(percent).div(100).toFixed(project.tokenMetadata.decimals));
   };
 
+  const getEstmiatedAmount = () => {
+    if(!amount || !selectedDate || new Date(selectedDate).getTime() < new Date().getTime()) {
+      return 0;
+    } else {
+      let endTime = new Date(selectedDate).getTime();
+      const period = 60 * 60 * 24 * 7 * 1000;
+      const totalPeriod = 60 * 60 * 24 * 356 * 4 * 1000;
+      endTime = parseInt(endTime / period, 10) * period;
+      const receiveAmount = (endTime - new Date().getTime()) * amount / totalPeriod;
+      return receiveAmount < 0 ? 0 : receiveAmount > 1000 ? 1000 : new BigNumber(receiveAmount).toFixed(4);
+    }
+  }
+
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
@@ -28,8 +46,39 @@ export default function VeAssetGeneration({ project }) {
     setSelectedValue(event.target.value);
   };
 
-  const onLock = () => {};
+  const onLock = async () => {
+    const web3 = await stores.accountStore.getWeb3Provider();
+    console.log('amount', amount);
+    console.log('selectedDate', selectedDate);
+    if(!amount) {
+      setAmountError('Please type an amount');
+      return;
+    }
+    setAmountError('');
+    if(!selectedDate || new Date(selectedDate).getTime() < new Date().getTime()) {
+      setDateError('The date should bigger than current time');
+      return;
+    }
+    setDateError('');
 
+    // locking
+    const account = stores.accountStore.store.account.address
+    try {
+      const allowance = await getSpiritContract(web3).allowance(account, project.veTokenMetadata.address);
+      if (allowance.eq(0)) {
+        await getSpiritContract(web3).approve(project.veTokenMetadata.address, MaxUint256);
+      }
+      const lockedAmount = await getVeSpiritContract(web3).locked(account);
+      if (!lockedAmount.amount.eq(0)) {
+        await getVeSpiritContract(web3).increase_amount(ethers.utils.parseEther(amount), { gasLimit: 1000000 });
+      } else {
+        await getVeSpiritContract(web3).create_lock(ethers.utils.parseEther(amount), parseInt(new Date(selectedDate).getTime() / 1000, 10), { gasLimit: 1000000 });
+      }
+    } catch(e) {
+      console.log(e);
+      alert(e.toString())
+    }
+  };
   return (
     <Paper elevation={1} className={classes.projectCardContainer}>
       <Typography variant="h2">Generate {project && project.veTokenMetadata ? project.veTokenMetadata.symbol : 'veAsset'}</Typography>
@@ -60,6 +109,7 @@ export default function VeAssetGeneration({ project }) {
           placeholder="0.00"
           value={amount}
           error={amountError}
+          helperText={amountError}
           onChange={(e) => {
             setAmount(e.target.value);
           }}
@@ -93,9 +143,11 @@ export default function VeAssetGeneration({ project }) {
           InputLabelProps={{
             shrink: true,
           }}
+          error={dateError}
+          helperText={dateError}
         />
       </div>
-      <div className={classes.textField}>
+      {/* <div className={classes.textField}>
         <div className={classes.inputTitleContainer}>
           <div className={classes.inputTitle}>
             <Typography variant="h5" noWrap>
@@ -103,7 +155,7 @@ export default function VeAssetGeneration({ project }) {
             </Typography>
           </div>
         </div>
-        <RadioGroup row aria-label="position" name="position" defaultValue="top">
+        <RadioGroup row aria-label="position" name="position" defaultValue="top" onChange={handleChange} value={selectedValue}>
           <FormControlLabel
             value="week"
             control={<Radio color="primary" />}
@@ -129,7 +181,7 @@ export default function VeAssetGeneration({ project }) {
             labelPlacement="bottom"
           />
         </RadioGroup>
-      </div>
+      </div> */}
       <div className={classes.actionButton}>
         <Button fullWidth disableElevation variant="contained" color="primary" size="large" onClick={onLock}>
           <Typography variant="h5">Lock {project?.tokenMetadata?.symbol}</Typography>
@@ -137,7 +189,7 @@ export default function VeAssetGeneration({ project }) {
       </div>
       <div className={classes.calculationResults}>
         <div className={classes.calculationResult}>
-          <Typography variant="h2">You will receive: </Typography>
+          <Typography variant="h2">You will receive: {getEstmiatedAmount()}</Typography>
           <Typography variant="h2" className={classes.bold}></Typography>
         </div>
       </div>

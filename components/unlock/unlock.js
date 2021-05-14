@@ -128,9 +128,7 @@ class Unlock extends Component {
           <CloseIcon />
         </div>
         <div className={classes.contentContainer}>
-          <Web3ReactProvider getLibrary={getLibrary}>
-            <MyComponent closeModal={closeModal} />
-          </Web3ReactProvider>
+          <MyComponent closeModal={closeModal} />
         </div>
       </div>
     );
@@ -139,6 +137,7 @@ class Unlock extends Component {
 
 function getLibrary(provider) {
   const library = new Web3Provider(provider);
+  console.log('unlocker', library)
   library.pollingInterval = 8000;
   return library;
 }
@@ -194,6 +193,7 @@ function MyComponent(props) {
 
   React.useEffect(() => {
     if (account && active && library) {
+      console.log('unlockerlibrary', library);
       stores.accountStore.setStore({
         account: { address: account },
         web3context: context

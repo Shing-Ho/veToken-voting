@@ -28,6 +28,7 @@ import {
 
 import BigNumber from "bignumber.js";
 import Web3 from "web3";
+import { ethers } from "ethers";
 
 class Store {
   constructor(dispatcher, emitter) {
@@ -196,7 +197,7 @@ class Store {
     if (!provider) {
       return null;
     }
-    return new Web3(provider);
+    return new ethers.providers.Web3Provider(provider);
   };
 }
 

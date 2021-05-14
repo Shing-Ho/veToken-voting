@@ -4,6 +4,7 @@ import Head from 'next/head';
 import { ThemeProvider } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { useRouter } from 'next/router';
+import { Web3ReactProvider } from '@web3-react/core'
 
 import lightTheme from '../theme/light';
 import darkTheme from '../theme/dark';
@@ -13,6 +14,12 @@ import Configure from './configure';
 import stores from '../stores/index.js';
 
 import { CONFIGURE, CONFIGURE_RETURNED } from '../stores/constants';
+
+
+function getLibrary(provider, connector) {
+  console.log('getLibrary', provider);
+  return new Web3Provider(provider) // this will vary according to whether you use e.g. ethers or web3.js
+}
 
 export default function MyApp({ Component, pageProps }) {
   const router = useRouter();
@@ -57,16 +64,18 @@ export default function MyApp({ Component, pageProps }) {
 
   return (
     <React.Fragment>
-      <Head>
-        <title>veSPIRIT</title>
-        <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
-      </Head>
-      <ThemeProvider theme={themeConfig}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
-        {validateConfigured() && <Component {...pageProps} changeTheme={changeTheme} />}
-        {!validateConfigured() && <Configure {...pageProps} />}
-      </ThemeProvider>
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <Head>
+          <title>veSPIRIT</title>
+          <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+        </Head>
+        <ThemeProvider theme={themeConfig}>
+          {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+          <CssBaseline />
+          {validateConfigured() && <Component {...pageProps} changeTheme={changeTheme} />}
+          {!validateConfigured() && <Configure {...pageProps} />}
+        </ThemeProvider>
+      </Web3ReactProvider>
     </React.Fragment>
   );
 }
